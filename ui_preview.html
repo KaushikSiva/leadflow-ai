@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeadFlow AI — Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="leadflow/static/app.css"/>
+</head>
+<body>
+<main class="workspace">
+
+  <!-- Rail -->
+  <aside class="rail">
+    <div class="brandblock">
+      <div class="brand-wordmark">LEAD<span>FLOW</span></div>
+      <div class="brand-sub">GTM Intelligence Agent · v1</div>
+    </div>
+    <div class="composer">
+      <div class="rail-label">Search Brief</div>
+      <textarea id="prompt-input" rows="5" placeholder="Find VP of Sales at B2B SaaS companies in Austin with 50–200 employees…"></textarea>
+      <div class="composer-row">
+        <input id="limit-input" class="limit-input" type="number" value="5"/>
+        <button id="queue-btn" class="btn-queue" type="button">QUEUE RUN</button>
+      </div>
+      <div id="composer-status" class="composer-status"></div>
+    </div>
+    <div class="recent">
+      <div class="rail-label" style="padding:0 18px;margin-bottom:6px">Recent Runs</div>
+      <div id="prompt-list" class="promptlist"></div>
+    </div>
+  </aside>
+
+  <!-- Ledger -->
+  <section class="ledger">
+    <div class="ledger-topbar">
+      <div id="ledger-title" class="ledger-title">FIND VP OF SALES AT B2B SAAS IN AUSTIN</div>
+      <button class="btn-retry" type="button">↺ RETRY</button>
+    </div>
+    <div class="pipeline">
+      <div class="pipe-stage done" id="stage-planning">
+        <div class="pipe-icon">🧠</div>
+        <div class="pipe-info"><div class="pipe-name">Planning</div><div class="pipe-count">✓</div></div>
+      </div>
+      <div class="pipe-stage done" id="stage-discovering">
+        <div class="pipe-icon">🔍</div>
+        <div class="pipe-info"><div class="pipe-name">Discovery</div><div class="pipe-count">6</div></div>
+      </div>
+      <div class="pipe-stage done" id="stage-scoring">
+        <div class="pipe-icon">⚖️</div>
+        <div class="pipe-info"><div class="pipe-name">Scoring</div><div class="pipe-count">6</div></div>
+      </div>
+      <div class="pipe-stage done" id="stage-enriching">
+        <div class="pipe-icon">📞</div>
+        <div class="pipe-info"><div class="pipe-name">Enrichment</div><div class="pipe-count">5</div></div>
+      </div>
+      <div class="pipe-stage done" id="stage-ready">
+        <div class="pipe-icon">✅</div>
+        <div class="pipe-info"><div class="pipe-name">Ready</div><div class="pipe-count">5</div></div>
+      </div>
+    </div>
+    <div class="brief-strip">
+      <div class="brief-cell"><div class="brief-key">Roles</div><div class="brief-val">VP of Sales, Head of Sales, Sales Director</div></div>
+      <div class="brief-cell"><div class="brief-key">Industry</div><div class="brief-val">B2B SaaS, Enterprise Software</div></div>
+      <div class="brief-cell"><div class="brief-key">Geo</div><div class="brief-val">Austin TX, Dallas TX</div></div>
+      <div class="brief-cell"><div class="brief-key">Seniority</div><div class="brief-val">VP, Director, Head-of</div></div>
+      <div class="brief-cell"><div class="brief-key">Exclude</div><div class="brief-val">Agencies, Staffing</div></div>
+      <div class="brief-cell"><div class="brief-key">Angle</div><div class="brief-val">Evaluating outbound tools</div></div>
+    </div>
+    <div class="error-line"></div>
+    <div class="leads-wrap">
+      <div class="leads-header">
+        <span class="leads-label">Ranked Prospects</span>
+        <span id="leads-count" class="leads-count-badge">6 leads</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Lead</th><th>Score</th><th>Decision</th><th>Enrichment</th><th>Phone</th><th>↗</th></tr>
+        </thead>
+        <tbody id="prospect-table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Inspector -->
+  <aside class="inspector">
+    <div id="insp-head" class="insp-head">
+      <div id="insp-av" class="insp-av" style="background:linear-gradient(135deg,#00e5ff,#0097a7)">JM</div>
+      <div id="insp-name" class="insp-name">JORDAN MITCHELL</div>
+      <div id="insp-role" class="insp-role">VP of Sales at Acme SaaS</div>
+      <div class="insp-score-row">
+        <div class="insp-bar-wrap"><div id="insp-bar" class="insp-bar-fill" style="width:92%;background:var(--green)"></div></div>
+        <div id="insp-score" class="insp-score-num" style="color:var(--green)">92/100</div>
+      </div>
+    </div>
+    <div class="insp-body">
+      <div class="insp-section">
+        <div class="insp-sec-label">Details</div>
+        <div class="detail-grid">
+          <div class="dg-item"><div class="dg-key">Company</div><div id="d-company" class="dg-val">Acme SaaS</div></div>
+          <div class="dg-item"><div class="dg-key">Location</div><div id="d-location" class="dg-val">Austin, TX</div></div>
+          <div class="dg-item"><div class="dg-key">Decision</div><div id="d-decision" class="dg-val"><span class="badge b-target">target</span></div></div>
+          <div class="dg-item"><div class="dg-key">Best Phone</div><div id="d-phone" class="dg-val" style="font-family:var(--mono);font-size:11px">+15125550192</div></div>
+        </div>
+      </div>
+      <div class="insp-section">
+        <div class="insp-sec-label">AI Rationale</div>
+        <div id="d-reason" class="reason-text">Strong title match (VP of Sales). Company size 80 employees fits the 50–200 bracket. Recent LinkedIn activity suggests active evaluation of outbound sales tools. Domain acmesaas.com confirmed B2B SaaS.</div>
+      </div>
+      <div class="insp-section">
+        <div class="insp-sec-label">Enriched Phones</div>
+        <ul id="phone-list" class="phone-list">
+          <li>📞 +15125550192</li>
+          <li>📞 +15125550847</li>
+        </ul>
+      </div>
+      <div class="insp-section">
+        <div class="insp-sec-label">Source Profile</div>
+        <a id="d-profile" class="profile-link" href="#" target="_blank">↗ OPEN LINKEDIN</a>
+      </div>
+    </div>
+    <div class="call-panel">
+      <button id="call-btn" class="btn-call" type="button">📞 CALL VIA VOICECALL</button>
+      <div class="call-hint">Routes to configured destination number</div>
+      <div id="call-status" class="call-status"></div>
+    </div>
+  </aside>
+
+</main>
+<script>
+// ── Mock data ──────────────────────────────────────────────────────────────
+const PROMPTS = [
+  { id:'p1', status:'ready',     raw_prompt:'Find VP of Sales at B2B SaaS in Austin with 50–200 employees',   discovered_count:6, enriched_count:5 },
+  { id:'p2', status:'enriching', raw_prompt:'HVAC company owners in Dallas evaluating lead gen software',      discovered_count:4, enriched_count:1 },
+  { id:'p3', status:'failed',    raw_prompt:'CFOs at manufacturing firms in Chicago with 100–500 employees',   discovered_count:0, enriched_count:0 },
+  { id:'p4', status:'ready',     raw_prompt:'Head of Marketing at e-commerce brands doing $5M–$50M revenue',  discovered_count:8, enriched_count:7 },
+];
+const PROSPECTS = [
+  { prompt_prospect_id:'pp1', full_name:'Jordan Mitchell',  job_title:'VP of Sales',        company_name:'Acme SaaS',       location:'Austin, TX',  ai_decision:'target', confidence_score:92, enrichment_status:'complete', best_phone_e164:'+15125550192', phones_json:['+15125550192','+15125550847'], score_reason:'Strong title match (VP of Sales). Company size 80 employees fits the 50–200 bracket. Recent LinkedIn activity suggests active evaluation of outbound sales tools.', profile_url:'#' },
+  { prompt_prospect_id:'pp2', full_name:'Priya Nair',       job_title:'Head of Sales',      company_name:'Velocity.io',     location:'Austin, TX',  ai_decision:'target', confidence_score:87, enrichment_status:'complete', best_phone_e164:'+15125550341', phones_json:['+15125550341'],              score_reason:'Head of Sales is a strong VP proxy. Series B SaaS, 120 employees. Outbound stack likely under review.', profile_url:'#' },
+  { prompt_prospect_id:'pp3', full_name:'Marcus Webb',      job_title:'Sales Director',     company_name:'Stackline',       location:'Austin, TX',  ai_decision:'target', confidence_score:81, enrichment_status:'complete', best_phone_e164:'+15125550788', phones_json:['+15125550788'],              score_reason:'Director-level sales leader at a 95-person SaaS company. Geography and company size match well.', profile_url:'#' },
+  { prompt_prospect_id:'pp4', full_name:'Aisha Okonkwo',    job_title:'VP Revenue',         company_name:'Gridline',        location:'Austin, TX',  ai_decision:'review', confidence_score:64, enrichment_status:'complete', best_phone_e164:'+15125550512', phones_json:['+15125550512'],              score_reason:'VP Revenue is adjacent but not a direct sales title. Company at upper edge of target range (200 employees).', profile_url:'#' },
+  { prompt_prospect_id:'pp5', full_name:'Tom Hargreaves',   job_title:'Regional Sales Mgr', company_name:'Brightpath',      location:'Dallas, TX',  ai_decision:'review', confidence_score:51, enrichment_status:'complete', best_phone_e164:null,           phones_json:[],                            score_reason:'Manager-level, not VP. Company slightly below target at 45 employees. Worth review if pipeline is thin.', profile_url:'#' },
+  { prompt_prospect_id:'pp6', full_name:'Sandra Chu',       job_title:'Account Executive',  company_name:'Nexus Analytics', location:'Houston, TX', ai_decision:'reject', confidence_score:18, enrichment_status:'failed',   best_phone_e164:null,           phones_json:[],                            score_reason:'IC-level AE, not a decision maker. Company is data analytics, not a SaaS product company.', profile_url:'#' },
+];
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+const esc = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const trim = (v,n) => { const s=String(v??''); return s.length>n?s.slice(0,n)+'…':s; };
+function initials(n) { const p=String(n||'?').trim().split(/\s+/); return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():(p[0][0]||'?').toUpperCase(); }
+const AV=[['#00e5ff','#0097a7'],['#00e676','#00897b'],['#ffd740','#f9a825'],['#ff6e40','#e64a19'],['#e040fb','#7b1fa2'],['#40c4ff','#0277bd']];
+function avColor(n) { let h=0; for(const c of String(n||'')) h=(h*31+c.charCodeAt(0))&0xffff; return AV[h%AV.length]; }
+function scoreColor(s) { return s>=70?'var(--green)':s>=40?'var(--yellow)':'var(--red)'; }
+function badge(d) { const m={target:'b-target',review:'b-review',reject:'b-reject'}; return `<span class="badge ${m[d]||'b-pending'}">${esc(d||'pending')}</span>`; }
+function dotCls(s) { if(['queued','planning','discovering','scoring','enriching'].includes(s)) return 'live'; if(s==='ready'||s==='partial') return 'ok'; if(s==='failed') return 'fail'; return ''; }
+
+let selPrompt = 'p1', selProspect = 'pp1';
+
+// ── Render prompt list ─────────────────────────────────────────────────────
+function renderPromptList() {
+  document.getElementById('prompt-list').innerHTML = PROMPTS.map(p=>`
+    <a class="promptlink${p.id===selPrompt?' active':''}" href="#" data-id="${p.id}">
+      <div class="pl-status"><span class="pl-dot ${dotCls(p.status)}"></span><span class="pl-status-text">${esc(p.status)}</span></div>
+      <div class="pl-snippet">${esc(trim(p.raw_prompt,88))}</div>
+      <div class="pl-meta">${p.discovered_count} found · ${p.enriched_count} enriched</div>
+    </a>`).join('');
+  document.getElementById('prompt-list').querySelectorAll('a[data-id]').forEach(a=>{
+    a.addEventListener('click', e=>{ e.preventDefault(); selPrompt=a.dataset.id; renderPromptList(); });
+  });
+}
+
+// ── Render prospects ───────────────────────────────────────────────────────
+function renderProspects() {
+  document.getElementById('prospect-table').innerHTML = PROSPECTS.map((item,i)=>{
+    const sel=item.prompt_prospect_id===selProspect?' sel':'';
+    const score=item.confidence_score;
+    const [c1,c2]=avColor(item.full_name);
+    const eCls=item.enrichment_status==='complete'?'ok':item.enrichment_status==='failed'?'fail':'';
+    return `<tr class="${sel}" data-id="${item.prompt_prospect_id}" style="--i:${i}">
+      <td><div class="lc">
+        <div class="lc-av" style="background:linear-gradient(135deg,${c1},${c2})">${initials(item.full_name)}</div>
+        <div><div class="lc-name">${esc(item.full_name)}</div><div class="lc-role">${esc(item.job_title)} · ${esc(item.company_name)}</div></div>
+      </div></td>
+      <td><div class="sc"><div class="sc-bar"><div class="sc-fill" style="width:${score}%;background:${scoreColor(score)}"></div></div><span class="sc-num">${score}</span></div></td>
+      <td>${badge(item.ai_decision)}</td>
+      <td><span class="enrich ${eCls}">${esc(item.enrichment_status)}</span></td>
+      <td><span class="phone-val">${esc(item.best_phone_e164||'—')}</span></td>
+      <td><a class="link-open" href="#" onclick="event.stopPropagation()">↗</a></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('prospect-table').querySelectorAll('tr').forEach(row=>{
+    row.addEventListener('click',()=>{ selProspect=row.dataset.id; renderProspects(); renderInspector(); });
+  });
+}
+
+// ── Render inspector ───────────────────────────────────────────────────────
+function renderInspector() {
+  const item=PROSPECTS.find(p=>p.prompt_prospect_id===selProspect);
+  if(!item) return;
+  const hdr=document.getElementById('insp-head');
+  hdr.classList.remove('flash'); void hdr.offsetWidth; hdr.classList.add('flash');
+  const [c1,c2]=avColor(item.full_name);
+  document.getElementById('insp-av').textContent=initials(item.full_name);
+  document.getElementById('insp-av').style.background=`linear-gradient(135deg,${c1},${c2})`;
+  document.getElementById('insp-name').textContent=item.full_name.toUpperCase();
+  document.getElementById('insp-role').textContent=`${item.job_title} at ${item.company_name}`;
+  const score=item.confidence_score;
+  document.getElementById('insp-bar').style.width=`${score}%`;
+  document.getElementById('insp-bar').style.background=scoreColor(score);
+  document.getElementById('insp-score').textContent=`${score}/100`;
+  document.getElementById('insp-score').style.color=scoreColor(score);
+  document.getElementById('d-company').textContent=item.company_name;
+  document.getElementById('d-location').textContent=item.location;
+  document.getElementById('d-decision').innerHTML=badge(item.ai_decision);
+  document.getElementById('d-phone').textContent=item.best_phone_e164||'—';
+  document.getElementById('d-reason').textContent=item.score_reason;
+  document.getElementById('phone-list').innerHTML=item.phones_json.length
+    ? item.phones_json.map(p=>`<li>📞 ${esc(p)}</li>`).join('')
+    : `<li style="color:var(--dim);border:none;background:none;padding:0">No enriched phones</li>`;
+}
+
+// ── Queue mock ─────────────────────────────────────────────────────────────
+document.getElementById('queue-btn').addEventListener('click',()=>{
+  const v=document.getElementById('prompt-input').value.trim();
+  const s=document.getElementById('composer-status');
+  if(!v){s.textContent='Enter a search brief first.';s.className='composer-status err';return;}
+  s.textContent='Queued ✓ (mock — no backend)';s.className='composer-status';
+  document.getElementById('prompt-input').value='';
+});
+document.getElementById('call-btn').addEventListener('click',()=>{
+  const s=document.getElementById('call-status');
+  s.textContent='✓ mock-call-id-001';s.className='call-status';
+});
+
+renderPromptList();
+renderProspects();
+renderInspector();
+</script>
+</body>
+</html>

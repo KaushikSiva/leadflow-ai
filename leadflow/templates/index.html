@@ -1,168 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ app_name }}</title>
-    <link rel="stylesheet" href="/static/app.css" />
-  </head>
-  <body data-selected-prompt-id="{{ selected_prompt_id or '' }}">
-    <main class="workspace">
-      <aside class="rail">
-        <div class="brandblock">
-          <p class="eyebrow">LeadFlow AI</p>
-          <h1>Prospect desk</h1>
-          <p class="muted">Prompt in. Profiles ranked. Calls handed to voicecall.</p>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ app_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/app.css"/>
+</head>
+<body data-selected-prompt-id="{{ selected_prompt_id or '' }}">
+<main class="workspace">
+
+  <!-- ── Rail ── -->
+  <aside class="rail">
+    <div class="brandblock">
+      <div class="brand-wordmark">LEAD<span>FLOW</span></div>
+      <div class="brand-sub">GTM Intelligence Agent · v1</div>
+    </div>
+
+    <div class="composer">
+      <div class="rail-label">Search Brief</div>
+      <textarea id="prompt-input" rows="5" placeholder="Find VP of Sales at B2B SaaS companies in Austin with 50–200 employees evaluating outbound tools…"></textarea>
+      <div class="composer-row">
+        <input id="limit-input" class="limit-input" type="number" min="1" max="100" value="5" title="Result limit"/>
+        <button id="queue-btn" class="btn-queue" type="button">QUEUE RUN</button>
+      </div>
+      <div id="composer-status" class="composer-status"></div>
+    </div>
+
+    <div class="recent">
+      <div class="rail-label" style="padding: 0 18px; margin-bottom: 6px;">Recent Runs</div>
+      <div id="prompt-list" class="promptlist">
+        {% for p in recent_prompts %}
+        <a class="promptlink{% if p.id == selected_prompt_id %} active{% endif %}" href="/prompts/{{ p.id }}" data-id="{{ p.id }}">
+          <div class="pl-status">
+            <span class="pl-dot {% if p.status in ['queued','planning','discovering','scoring','enriching'] %}live{% elif p.status in ['ready','partial'] %}ok{% elif p.status == 'failed' %}fail{% endif %}"></span>
+            <span class="pl-status-text">{{ p.status }}</span>
+          </div>
+          <div class="pl-snippet">{{ p.raw_prompt }}</div>
+          <div class="pl-meta">{{ p.discovered_count }} found · {{ p.enriched_count }} enriched</div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Ledger ── -->
+  <section class="ledger">
+    <div class="ledger-topbar">
+      <div id="ledger-title" class="ledger-title">SELECT A RUN</div>
+      <button id="retry-btn" class="btn-retry" type="button">↺ RETRY</button>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="pipeline">
+      <div class="pipe-stage" id="stage-planning">
+        <div class="pipe-icon">🧠</div>
+        <div class="pipe-info">
+          <div class="pipe-name">Planning</div>
+          <div class="pipe-count" id="pc-planning">—</div>
         </div>
-
-        <section class="composer">
-          <div class="sectionhead">
-            <p class="eyebrow">New prompt</p>
-            <h2>Find the next list</h2>
-          </div>
-          <form id="prompt-form">
-            <label class="field">
-              <span>Search brief</span>
-              <textarea id="prompt-input" name="prompt" rows="8" placeholder="Find owners of HVAC companies in Dallas with 5-50 employees who are likely evaluating lead gen help."></textarea>
-            </label>
-            <div class="fieldrow">
-              <label class="field slim">
-                <span>Result limit</span>
-                <input id="limit-input" name="requested_limit" type="number" min="1" max="100" value="5" />
-              </label>
-              <button class="accent" type="submit">Queue prompt</button>
-            </div>
-          </form>
-          <p id="composer-status" class="helper"></p>
-        </section>
-
-        <section class="recent">
-          <div class="sectionhead">
-            <p class="eyebrow">Recent runs</p>
-            <h2>Prompt history</h2>
-          </div>
-          <div id="prompt-list" class="promptlist">
-            {% for prompt in recent_prompts %}
-              <a class="promptlink{% if prompt.id == selected_prompt_id %} active{% endif %}" href="/prompts/{{ prompt.id }}">
-                <span class="promptstatus status-{{ prompt.status }}">{{ prompt.status }}</span>
-                <strong>{{ prompt.raw_prompt[:72] }}{% if prompt.raw_prompt|length > 72 %}...{% endif %}</strong>
-                <span class="promptmeta">{{ prompt.discovered_count }} leads · {{ prompt.enriched_count }} enriched</span>
-              </a>
-            {% endfor %}
-          </div>
-        </section>
-      </aside>
-
-      <section class="ledger">
-        <header class="ledgerhead">
-          <div>
-            <p class="eyebrow">Workspace</p>
-            <h2 id="prompt-title">Select a prompt</h2>
-          </div>
-          <div class="toolbar">
-            <button id="retry-button" type="button">Retry run</button>
-          </div>
-        </header>
-
-        <section class="summarystrip">
-          <div>
-            <span class="metriclabel">Status</span>
-            <strong id="metric-status">Idle</strong>
-          </div>
-          <div>
-            <span class="metriclabel">Discovered</span>
-            <strong id="metric-discovered">0</strong>
-          </div>
-          <div>
-            <span class="metriclabel">Scored</span>
-            <strong id="metric-scored">0</strong>
-          </div>
-          <div>
-            <span class="metriclabel">Enriched</span>
-            <strong id="metric-enriched">0</strong>
-          </div>
-        </section>
-
-        <section class="briefpanel">
-          <div class="sectionhead">
-            <p class="eyebrow">Canonical brief</p>
-            <h2>Planned targeting</h2>
-          </div>
-          <div id="brief-grid" class="briefgrid"></div>
-          <p id="prompt-error" class="errorline"></p>
-        </section>
-
-        <section class="tablepanel">
-          <div class="sectionhead">
-            <p class="eyebrow">Lead ledger</p>
-            <h2>Ranked prospects</h2>
-          </div>
-          <div class="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Lead</th>
-                  <th>Profile</th>
-                  <th>Fit</th>
-                  <th>Decision</th>
-                  <th>Enrichment</th>
-                  <th>Phone</th>
-                </tr>
-              </thead>
-              <tbody id="prospect-table"></tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-
-      <aside class="inspector">
-        <div class="sectionhead">
-          <p class="eyebrow">Inspector</p>
-          <h2 id="inspector-name">No lead selected</h2>
+      </div>
+      <div class="pipe-stage" id="stage-discovering">
+        <div class="pipe-icon">🔍</div>
+        <div class="pipe-info">
+          <div class="pipe-name">Discovery</div>
+          <div class="pipe-count" id="pc-discovering">—</div>
         </div>
-        <p id="inspector-role" class="muted"></p>
-        <div id="inspector-scorebar" class="scorebar"><span></span></div>
-        <dl class="detailgrid">
-          <div>
-            <dt>Company</dt>
-            <dd id="detail-company">-</dd>
-          </div>
-          <div>
-            <dt>Location</dt>
-            <dd id="detail-location">-</dd>
-          </div>
-          <div>
-            <dt>Decision</dt>
-            <dd id="detail-decision">-</dd>
-          </div>
-          <div>
-            <dt>Best phone</dt>
-            <dd id="detail-phone">-</dd>
-          </div>
-        </dl>
-        <section class="inspectorblock">
-          <p class="eyebrow">Why it ranked</p>
-          <p id="detail-reason" class="copy">Select a prospect to inspect the confidence rationale.</p>
-        </section>
-        <section class="inspectorblock">
-          <p class="eyebrow">Enriched phones</p>
-          <ul id="phone-list" class="phonelist"></ul>
-        </section>
-        <section class="inspectorblock">
-          <p class="eyebrow">Profile</p>
-          <a id="detail-profile" class="profilelink" href="#" target="_blank" rel="noreferrer">Open source profile</a>
-        </section>
-        <div class="callpanel">
-          <button id="call-button" class="accent wide" type="button">Call via voicecall</button>
-          <p class="helper">All calls route to 214-909-8059 in v1.</p>
-          <p id="call-status" class="helper"></p>
+      </div>
+      <div class="pipe-stage" id="stage-scoring">
+        <div class="pipe-icon">⚖️</div>
+        <div class="pipe-info">
+          <div class="pipe-name">Scoring</div>
+          <div class="pipe-count" id="pc-scoring">—</div>
         </div>
-      </aside>
-    </main>
+      </div>
+      <div class="pipe-stage" id="stage-enriching">
+        <div class="pipe-icon">📞</div>
+        <div class="pipe-info">
+          <div class="pipe-name">Enrichment</div>
+          <div class="pipe-count" id="pc-enriching">—</div>
+        </div>
+      </div>
+      <div class="pipe-stage" id="stage-ready">
+        <div class="pipe-icon">✅</div>
+        <div class="pipe-info">
+          <div class="pipe-name">Ready</div>
+          <div class="pipe-count" id="pc-ready">—</div>
+        </div>
+      </div>
+    </div>
 
-    <script>
-      window.__INITIAL_PROMPTS__ = {{ recent_prompts | tojson }};
-    </script>
-    <script src="/static/app.js"></script>
-  </body>
+    <!-- Brief strip -->
+    <div id="brief-strip" class="brief-strip"></div>
+    <div id="prompt-error" class="error-line"></div>
+
+    <!-- Leads -->
+    <div class="leads-wrap">
+      <div class="leads-header">
+        <span class="leads-label">Ranked Prospects</span>
+        <span id="leads-count" class="leads-count-badge">0</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Lead</th>
+            <th>Score</th>
+            <th>Decision</th>
+            <th>Enrichment</th>
+            <th>Phone</th>
+            <th>↗</th>
+          </tr>
+        </thead>
+        <tbody id="prospect-table"></tbody>
+      </table>
+      <div id="leads-empty" class="empty" style="display:none">
+        <div class="empty-glyph">◎</div>
+        <div class="empty-title">NO LEADS YET</div>
+        <div class="empty-sub">Queue a brief to start the pipeline</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Inspector ── -->
+  <aside class="inspector">
+    <div id="insp-head" class="insp-head">
+      <div id="insp-av" class="insp-av">?</div>
+      <div id="insp-name" class="insp-name">NO LEAD SELECTED</div>
+      <div id="insp-role" class="insp-role"></div>
+      <div class="insp-score-row">
+        <div class="insp-bar-wrap">
+          <div id="insp-bar" class="insp-bar-fill" style="width:0%"></div>
+        </div>
+        <div id="insp-score" class="insp-score-num">—</div>
+      </div>
+    </div>
+
+    <div class="insp-body">
+      <div class="insp-section">
+        <div class="insp-sec-label">Details</div>
+        <div class="detail-grid">
+          <div class="dg-item"><div class="dg-key">Company</div><div id="d-company" class="dg-val">—</div></div>
+          <div class="dg-item"><div class="dg-key">Location</div><div id="d-location" class="dg-val">—</div></div>
+          <div class="dg-item"><div class="dg-key">Decision</div><div id="d-decision" class="dg-val">—</div></div>
+          <div class="dg-item"><div class="dg-key">Best Phone</div><div id="d-phone" class="dg-val" style="font-family:var(--mono);font-size:11px">—</div></div>
+        </div>
+      </div>
+
+      <div class="insp-section">
+        <div class="insp-sec-label">AI Rationale</div>
+        <div id="d-reason" class="reason-text">Select a prospect to see scoring rationale.</div>
+      </div>
+
+      <div class="insp-section">
+        <div class="insp-sec-label">Enriched Phones</div>
+        <ul id="phone-list" class="phone-list"></ul>
+      </div>
+
+      <div class="insp-section">
+        <div class="insp-sec-label">Source Profile</div>
+        <a id="d-profile" class="profile-link" href="#" target="_blank" rel="noreferrer">↗ OPEN LINKEDIN</a>
+      </div>
+    </div>
+
+    <div class="call-panel">
+      <button id="call-btn" class="btn-call" type="button" disabled>
+        📞 CALL VIA VOICECALL
+      </button>
+      <div class="call-hint">Routes to configured destination number</div>
+      <div id="call-status" class="call-status"></div>
+    </div>
+  </aside>
+
+</main>
+<script>window.__INITIAL_PROMPTS__ = {{ recent_prompts | tojson }};</script>
+<script src="/static/app.js"></script>
+</body>
 </html>
