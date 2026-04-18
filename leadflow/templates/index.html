@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ app_name }}</title>
+    <link rel="stylesheet" href="/static/app.css" />
+  </head>
+  <body data-selected-prompt-id="{{ selected_prompt_id or '' }}">
+    <main class="workspace">
+      <aside class="rail">
+        <div class="brandblock">
+          <p class="eyebrow">LeadFlow AI</p>
+          <h1>Prospect desk</h1>
+          <p class="muted">Prompt in. Profiles ranked. Calls handed to voicecall.</p>
+        </div>
+
+        <section class="composer">
+          <div class="sectionhead">
+            <p class="eyebrow">New prompt</p>
+            <h2>Find the next list</h2>
+          </div>
+          <form id="prompt-form">
+            <label class="field">
+              <span>Search brief</span>
+              <textarea id="prompt-input" name="prompt" rows="8" placeholder="Find owners of HVAC companies in Dallas with 5-50 employees who are likely evaluating lead gen help."></textarea>
+            </label>
+            <div class="fieldrow">
+              <label class="field slim">
+                <span>Result limit</span>
+                <input id="limit-input" name="requested_limit" type="number" min="1" max="100" value="5" />
+              </label>
+              <button class="accent" type="submit">Queue prompt</button>
+            </div>
+          </form>
+          <p id="composer-status" class="helper"></p>
+        </section>
+
+        <section class="recent">
+          <div class="sectionhead">
+            <p class="eyebrow">Recent runs</p>
+            <h2>Prompt history</h2>
+          </div>
+          <div id="prompt-list" class="promptlist">
+            {% for prompt in recent_prompts %}
+              <a class="promptlink{% if prompt.id == selected_prompt_id %} active{% endif %}" href="/prompts/{{ prompt.id }}">
+                <span class="promptstatus status-{{ prompt.status }}">{{ prompt.status }}</span>
+                <strong>{{ prompt.raw_prompt[:72] }}{% if prompt.raw_prompt|length > 72 %}...{% endif %}</strong>
+                <span class="promptmeta">{{ prompt.discovered_count }} leads · {{ prompt.enriched_count }} enriched</span>
+              </a>
+            {% endfor %}
+          </div>
+        </section>
+      </aside>
+
+      <section class="ledger">
+        <header class="ledgerhead">
+          <div>
+            <p class="eyebrow">Workspace</p>
+            <h2 id="prompt-title">Select a prompt</h2>
+          </div>
+          <div class="toolbar">
+            <button id="retry-button" type="button">Retry run</button>
+          </div>
+        </header>
+
+        <section class="summarystrip">
+          <div>
+            <span class="metriclabel">Status</span>
+            <strong id="metric-status">Idle</strong>
+          </div>
+          <div>
+            <span class="metriclabel">Discovered</span>
+            <strong id="metric-discovered">0</strong>
+          </div>
+          <div>
+            <span class="metriclabel">Scored</span>
+            <strong id="metric-scored">0</strong>
+          </div>
+          <div>
+            <span class="metriclabel">Enriched</span>
+            <strong id="metric-enriched">0</strong>
+          </div>
+        </section>
+
+        <section class="briefpanel">
+          <div class="sectionhead">
+            <p class="eyebrow">Canonical brief</p>
+            <h2>Planned targeting</h2>
+          </div>
+          <div id="brief-grid" class="briefgrid"></div>
+          <p id="prompt-error" class="errorline"></p>
+        </section>
+
+        <section class="tablepanel">
+          <div class="sectionhead">
+            <p class="eyebrow">Lead ledger</p>
+            <h2>Ranked prospects</h2>
+          </div>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Lead</th>
+                  <th>Profile</th>
+                  <th>Fit</th>
+                  <th>Decision</th>
+                  <th>Enrichment</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+              <tbody id="prospect-table"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <aside class="inspector">
+        <div class="sectionhead">
+          <p class="eyebrow">Inspector</p>
+          <h2 id="inspector-name">No lead selected</h2>
+        </div>
+        <p id="inspector-role" class="muted"></p>
+        <div id="inspector-scorebar" class="scorebar"><span></span></div>
+        <dl class="detailgrid">
+          <div>
+            <dt>Company</dt>
+            <dd id="detail-company">-</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd id="detail-location">-</dd>
+          </div>
+          <div>
+            <dt>Decision</dt>
+            <dd id="detail-decision">-</dd>
+          </div>
+          <div>
+            <dt>Best phone</dt>
+            <dd id="detail-phone">-</dd>
+          </div>
+        </dl>
+        <section class="inspectorblock">
+          <p class="eyebrow">Why it ranked</p>
+          <p id="detail-reason" class="copy">Select a prospect to inspect the confidence rationale.</p>
+        </section>
+        <section class="inspectorblock">
+          <p class="eyebrow">Enriched phones</p>
+          <ul id="phone-list" class="phonelist"></ul>
+        </section>
+        <section class="inspectorblock">
+          <p class="eyebrow">Profile</p>
+          <a id="detail-profile" class="profilelink" href="#" target="_blank" rel="noreferrer">Open source profile</a>
+        </section>
+        <div class="callpanel">
+          <button id="call-button" class="accent wide" type="button">Call via voicecall</button>
+          <p class="helper">All calls route to 214-909-8059 in v1.</p>
+          <p id="call-status" class="helper"></p>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      window.__INITIAL_PROMPTS__ = {{ recent_prompts | tojson }};
+    </script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
