@@ -6,7 +6,7 @@
   <title>{{ app_name }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/static/app.css"/>
 </head>
 <body data-selected-prompt-id="{{ selected_prompt_id or '' }}">
@@ -15,22 +15,22 @@
   <!-- ── Rail ── -->
   <aside class="rail">
     <div class="brandblock">
-      <div class="brand-wordmark">LEAD<span>FLOW</span></div>
-      <div class="brand-sub">GTM Intelligence Agent · v1</div>
+      <div class="brand-wordmark">Lead<span>Flow</span> AI</div>
+      <div class="brand-sub">GTM Intelligence Agent</div>
     </div>
 
     <div class="composer">
-      <div class="rail-label">Search Brief</div>
+      <div class="rail-label">New Search Brief</div>
       <textarea id="prompt-input" rows="5" placeholder="Find VP of Sales at B2B SaaS companies in Austin with 50–200 employees evaluating outbound tools…"></textarea>
       <div class="composer-row">
         <input id="limit-input" class="limit-input" type="number" min="1" max="100" value="5" title="Result limit"/>
-        <button id="queue-btn" class="btn-queue" type="button">QUEUE RUN</button>
+        <button id="queue-btn" class="btn-queue" type="button">Queue Run</button>
       </div>
       <div id="composer-status" class="composer-status"></div>
     </div>
 
     <div class="recent">
-      <div class="rail-label" style="padding: 0 18px; margin-bottom: 6px;">Recent Runs</div>
+      <div class="rail-label" style="margin-bottom:10px">Recent Runs</div>
       <div id="prompt-list" class="promptlist">
         {% for p in recent_prompts %}
         <a class="promptlink{% if p.id == selected_prompt_id %} active{% endif %}" href="/prompts/{{ p.id }}" data-id="{{ p.id }}">
@@ -49,11 +49,11 @@
   <!-- ── Ledger ── -->
   <section class="ledger">
     <div class="ledger-topbar">
-      <div id="ledger-title" class="ledger-title">SELECT A RUN</div>
-      <button id="retry-btn" class="btn-retry" type="button">↺ RETRY</button>
+      <div id="ledger-title" class="ledger-title">Select a run to begin</div>
+      <button id="retry-btn" class="btn-retry" type="button">↺ Retry</button>
     </div>
 
-    <!-- Pipeline -->
+    <!-- Pipeline cards -->
     <div class="pipeline">
       <div class="pipe-stage" id="stage-planning">
         <div class="pipe-icon">🧠</div>
@@ -92,33 +92,35 @@
       </div>
     </div>
 
-    <!-- Brief strip -->
+    <!-- Brief card -->
     <div id="brief-strip" class="brief-strip"></div>
     <div id="prompt-error" class="error-line"></div>
 
-    <!-- Leads -->
+    <!-- Leads card -->
     <div class="leads-wrap">
       <div class="leads-header">
         <span class="leads-label">Ranked Prospects</span>
-        <span id="leads-count" class="leads-count-badge">0</span>
+        <span id="leads-count" class="leads-count-badge">0 leads</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Lead</th>
-            <th>Score</th>
-            <th>Decision</th>
-            <th>Enrichment</th>
-            <th>Phone</th>
-            <th>↗</th>
-          </tr>
-        </thead>
-        <tbody id="prospect-table"></tbody>
-      </table>
-      <div id="leads-empty" class="empty" style="display:none">
-        <div class="empty-glyph">◎</div>
-        <div class="empty-title">NO LEADS YET</div>
-        <div class="empty-sub">Queue a brief to start the pipeline</div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Lead</th>
+              <th>Score</th>
+              <th>Decision</th>
+              <th>Enrichment</th>
+              <th>Phone</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="prospect-table"></tbody>
+        </table>
+        <div id="leads-empty" class="empty" style="display:none">
+          <div class="empty-glyph">🎯</div>
+          <div class="empty-title">No leads yet</div>
+          <div class="empty-sub">Queue a brief to start the pipeline</div>
+        </div>
       </div>
     </div>
   </section>
@@ -127,7 +129,7 @@
   <aside class="inspector">
     <div id="insp-head" class="insp-head">
       <div id="insp-av" class="insp-av">?</div>
-      <div id="insp-name" class="insp-name">NO LEAD SELECTED</div>
+      <div id="insp-name" class="insp-name">No lead selected</div>
       <div id="insp-role" class="insp-role"></div>
       <div class="insp-score-row">
         <div class="insp-bar-wrap">
@@ -144,13 +146,13 @@
           <div class="dg-item"><div class="dg-key">Company</div><div id="d-company" class="dg-val">—</div></div>
           <div class="dg-item"><div class="dg-key">Location</div><div id="d-location" class="dg-val">—</div></div>
           <div class="dg-item"><div class="dg-key">Decision</div><div id="d-decision" class="dg-val">—</div></div>
-          <div class="dg-item"><div class="dg-key">Best Phone</div><div id="d-phone" class="dg-val" style="font-family:var(--mono);font-size:11px">—</div></div>
+          <div class="dg-item"><div class="dg-key">Best Phone</div><div id="d-phone" class="dg-val" style="font-family:var(--font-mono);font-size:12px">—</div></div>
         </div>
       </div>
 
       <div class="insp-section">
         <div class="insp-sec-label">AI Rationale</div>
-        <div id="d-reason" class="reason-text">Select a prospect to see scoring rationale.</div>
+        <div id="d-reason" class="reason-text">Select a prospect to see the scoring rationale.</div>
       </div>
 
       <div class="insp-section">
@@ -160,13 +162,13 @@
 
       <div class="insp-section">
         <div class="insp-sec-label">Source Profile</div>
-        <a id="d-profile" class="profile-link" href="#" target="_blank" rel="noreferrer">↗ OPEN LINKEDIN</a>
+        <a id="d-profile" class="profile-link" href="#" target="_blank" rel="noreferrer">↗ Open LinkedIn Profile</a>
       </div>
     </div>
 
     <div class="call-panel">
       <button id="call-btn" class="btn-call" type="button" disabled>
-        📞 CALL VIA VOICECALL
+        📞 Call via VoiceCall
       </button>
       <div class="call-hint">Routes to configured destination number</div>
       <div id="call-status" class="call-status"></div>
