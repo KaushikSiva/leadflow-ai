@@ -16,6 +16,7 @@ from leadflow.services.normalize import (
     choose_best_phone,
     collapse_ws,
     extract_phone_candidates,
+    normalize_phone,
     normalize_prompt_brief,
     normalize_prospect_payload,
     normalize_score_payload,
@@ -87,6 +88,7 @@ def build_call_payload(prompt: Prompt, item: PromptProspect, settings: Settings)
     prospect = item.prospect
     phones = item.phones_json or []
     phones_text = ", ".join(str(phone) for phone in phones[:3]) if phones else "No enriched phone on file"
+    destination_number = normalize_phone(settings.voicecall_destination_number) or settings.voicecall_destination_number
     company_bits = [collapse_ws(prospect.company_name), collapse_ws(prospect.job_title), collapse_ws(prospect.location)]
     company_context = ", ".join(bit for bit in company_bits if bit)
     objective = collapse_ws(
@@ -101,7 +103,7 @@ def build_call_payload(prompt: Prompt, item: PromptProspect, settings: Settings)
         collapse_ws(f"Original search prompt: {prompt.raw_prompt}"),
     ]
     payload: dict[str, Any] = {
-        "to": settings.voicecall_destination_number,
+        "to": destination_number,
         "context": {
             "objective": objective,
             "talking_points": " ".join(part for part in talking_points_parts if part),

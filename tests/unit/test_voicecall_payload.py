@@ -39,8 +39,7 @@ def test_voicecall_payload_always_uses_hardcoded_destination(monkeypatch) -> Non
 
     payload = build_call_payload(prompt, item, settings)
 
-    assert payload["to"] == "214-909-8059"
+    assert payload["to"] == "+12149098059"
     assert "customer_name" not in payload["context"]
     assert payload["metadata"]["prompt_id"] == "prompt-1"
     assert payload["metadata"]["prompt_prospect_id"] == "pp-1"
-

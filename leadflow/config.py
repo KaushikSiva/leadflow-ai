@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     voicecall_api_base_url: str = Field(alias="VOICECALL_API_BASE_URL")
     voicecall_api_token: str = Field(alias="VOICECALL_API_TOKEN")
     voicecall_from_number: str | None = Field(default=None, alias="VOICECALL_FROM_NUMBER")
-    voicecall_destination_number: str = Field(default="214-909-8059", alias="VOICECALL_DESTINATION_NUMBER")
+    voicecall_destination_number: str = Field(default="+12149098059", alias="VOICECALL_DESTINATION_NUMBER")
 
     worker_poll_seconds: int = Field(default=5, alias="WORKER_POLL_SECONDS")
     worker_batch_size: int = Field(default=1, alias="WORKER_BATCH_SIZE")

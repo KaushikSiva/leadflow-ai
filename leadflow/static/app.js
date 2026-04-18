@@ -62,7 +62,17 @@ function avColor(name) {
 async function api(path, opts = {}) {
   const res = await fetch(path, { ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) } });
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+  const type = res.headers.get('content-type') || '';
+  let data = {};
+
+  if (text) {
+    if (type.includes('application/json')) {
+      data = JSON.parse(text);
+    } else {
+      data = { detail: text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || `HTTP ${res.status}` };
+    }
+  }
+
   if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
   return data;
 }

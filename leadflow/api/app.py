@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request
 from sqlalchemy.orm import Session
+from werkzeug.exceptions import HTTPException
 
 from leadflow import repositories
 from leadflow.config import get_settings
@@ -13,6 +15,7 @@ from leadflow.schemas import PromptCreateRequest
 from leadflow.services.workflow import build_context, place_prospect_call, serialize_prompt, serialize_prompt_prospect
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+logger = logging.getLogger(__name__)
 
 
 def _get_db() -> Session:
@@ -53,6 +56,18 @@ def create_app() -> Flask:
         if request.path.startswith("/api/"):
             return _json_error(400, str(exc))
         return (str(exc), 400)
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_error(exc: Exception):
+        if isinstance(exc, HTTPException):
+            if request.path.startswith("/api/"):
+                return _json_error(exc.code or 500, exc.description)
+            return (exc.description, exc.code or 500)
+
+        logger.exception("Unhandled error for path=%s", request.path)
+        if request.path.startswith("/api/"):
+            return _json_error(500, "Internal server error")
+        return ("Internal server error", 500)
 
     @app.get("/healthz")
     def healthz():

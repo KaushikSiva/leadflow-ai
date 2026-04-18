@@ -72,7 +72,7 @@ class FakeVoiceCall:
 
 @dataclass
 class FakeSettings:
-    voicecall_destination_number: str = "214-909-8059"
+    voicecall_destination_number: str = "+12149098059"
     voicecall_from_number: str | None = None
     apify_profile_actor_id: str = "profile-actor"
 
@@ -163,5 +163,6 @@ def test_ui_smoke_routes_render_workspace(test_db) -> None:
     response = client.get("/")
     assert response.status_code == 200
     page = response.get_data(as_text=True)
-    assert "Prospect desk" in page
-    assert "Lead ledger" in page
+    assert "New Search Brief" in page
+    assert "Ranked Prospects" in page
+    assert "Call via VoiceCall" in page
